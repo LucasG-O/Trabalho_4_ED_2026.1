@@ -1,4 +1,3 @@
-# Trabalho_4_ED_2026.1
 # Sistema de Autocomplete de Jogos — C++ (Trie)
 
 ## Descrição
