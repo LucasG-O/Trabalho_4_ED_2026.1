@@ -128,3 +128,15 @@ void Trie::sortResults(std::vector<Game*>& games){
         }
     }
 }
+
+std::vector<Game*> Trie::autocomplete(std::string prefix, int k){
+    std::vector<Game*> resultados;
+
+    if (k <= 0){
+        return resultados;
+    }
+//formatacao
+    std::string searchKey = toSearchKey(prefix);
+        TrieNode* cursor = this->root;
+
+}
