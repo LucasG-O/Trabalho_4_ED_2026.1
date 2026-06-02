@@ -1,3 +1,4 @@
+#pragma once
 #include "Game.hpp"
 #include <vector>
 #include <string>
@@ -20,6 +21,7 @@ class Trie {
 private:
 
     TrieNode* root;
+    void collectGames(TrieNode* node, std::vector<Game*>& resultados);
 
 public:
 
@@ -34,5 +36,6 @@ public:
     std::string toSearchKey(std::string text);
     void sortResults(std::vector<Game*>& games);
 
+    int getIndex(char c);
     // Outros métodos auxiliares, se necessário
 };

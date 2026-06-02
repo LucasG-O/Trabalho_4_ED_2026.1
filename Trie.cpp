@@ -24,20 +24,27 @@ Trie::Trie() {
 Trie::~Trie() {
     delete this->root;
 }
+
+int Trie::getIndex(char c){//funcao auxiliar para retornar o indice
+    if (c >= 'a' && c <= 'z') {
+        return c - 'a';
+    } else if (c >= '0' && c <= '9') {
+        return 26 + (c- '0');
+    }
+    return -1; //caracter deve ser ignorado
+}
+
+
 bool Trie::insert(Game* game) {
     TrieNode* currentNode = this->root;
     std::string searchKey = toSearchKey(game->getTitle());
 
     for (char c : searchKey) {
-        int index;
-        if (c >= 'a' && c <= 'z') {
-            index = c - 'a';
-        } else if (c >= '0' && c <= '9') {
-            index = 26 + (c - '0');
-        } else {
+        int index = getIndex(c);
+        
+        if(index == -1){
             continue; // ignorar caracteres nao alfanumericos
         }
-
         if (currentNode->children[index] == nullptr) {
             currentNode->children[index] = new TrieNode();
         }
@@ -65,6 +72,7 @@ std::string Trie::toSearchKey(std::string text){
             searchKey += std::tolower(c);// transformamos em minusculas
         }
     }
+    return searchKey;
 }
 
 bool Trie::contains(std::string title){
@@ -74,15 +82,12 @@ bool Trie::contains(std::string title){
 
     for (int i = 0; i < titulo.length(); i++){
         char c = titulo[i]; 
-        int indice;
-        if (c >= 'a' && c <= 'z') {
-            // mapeia letras de 'a' para 0 ate 'z' para 25
-            indice = c - 'a'; 
-        } else if (c >= '0' && c <= '9') {
-            // mapeia numeros de '0' para 26 ate '9' para 35
-            indice = c - '0' + 26; 
+        int indice = getIndex(c);
+
+        if(indice == -1){
+            continue; // ignorar caracteres nao alfanumericos
         }
-        if (cursor->children[indice] = nullptr){return false;} // palavra nao existe no catalogo
+        if (cursor->children[indice] == nullptr){return false;} // palavra nao existe no catalogo
         
         cursor = cursor->children[indice]; // proxima letra
     }
@@ -129,6 +134,20 @@ void Trie::sortResults(std::vector<Game*>& games){
     }
 }
 
+void Trie::collectGames(TrieNode* node, std::vector<Game*>& resultados) {
+    if (node == nullptr) {
+        return;
+    }
+    // se o no atual é o fim de uma palavra valida, guarda o jogo no vetor
+    if (node->isEndOfTitle) {
+        resultados.push_back(node->game);
+    }
+    // chama a si mesma para olhar todos os 36 caminhos possiveis para baixo
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+        collectGames(node->children[i], resultados);
+    }
+}
+
 std::vector<Game*> Trie::autocomplete(std::string prefix, int k){
     std::vector<Game*> resultados;
 
@@ -137,6 +156,26 @@ std::vector<Game*> Trie::autocomplete(std::string prefix, int k){
     }
 //formatacao
     std::string searchKey = toSearchKey(prefix);
-        TrieNode* cursor = this->root;
+    TrieNode* cursor = this->root;
 
+    for (int i = 0; i < searchKey.length(); i++){
+        char c = searchKey[i];
+        int indice = getIndex(c);
+
+        if(indice == -1){
+            continue; // ignorar caracteres nao alfanumericos
+        }
+        // Se o caminho quebrar (nullptr), significa que nenhum jogo começa com esse prefixo
+        if (cursor->children[indice] == nullptr) {
+            return resultados; // retorna o vetor vazio
+        }
+        cursor = cursor->children[indice];
+    }
+    collectGames(cursor, resultados);
+
+    sortResults(resultados);
+    if (resultados.size() > k) {
+        resultados.resize(k); // mantem apenas os k primeiros resultados
+    }
+    return resultados;
 }

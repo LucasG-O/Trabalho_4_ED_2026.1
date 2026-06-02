@@ -1,4 +1,4 @@
-// games_database.hpp
+#pragma once
 #ifndef GAMES_DATABASE_HPP
 #define GAMES_DATABASE_HPP
 
