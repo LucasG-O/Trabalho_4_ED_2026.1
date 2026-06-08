@@ -37,5 +37,4 @@ public:
     void sortResults(std::vector<Game*>& games);
 
     int getIndex(char c);
-    // Outros métodos auxiliares, se necessário
 };
